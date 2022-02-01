@@ -1,5 +1,5 @@
 # Swimmer_Power
-Testing device for swimmer power output in the pool
+Testing device for swimmer power output in the pool.<br>
 I crafted this device to test my swimming team in the water.
 The swimmer is wearing a belt with a bungee cord attached to a fisherman's scale.
 The scale reading is used to plot a power graph while the swimmer is swimming with maximum effort
@@ -11,7 +11,7 @@ There are two distinct software entities:
 The testing sequence is as follows:
 * The Python script is started and the selections on the screen are done, but Start button is not yet pressed
 * Swimmer with the rubber cord is in the water, end of the cord attached to the scale hook.
-* Stop button at the scale is pressed to update the temperature compensation factor (optional)
+* Stop button at the scale is pressed to update the temperature compensation factor (<i>optional</i>)
 * Start button on the screen is tapped to start the plotting (rubber cord still slack)
 * Swimmer does his/her workout. When the cord starts to retract, the Stop button at the scale is pressed.
 * The graphics are stored and the Python script ends.
