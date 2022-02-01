@@ -5,7 +5,7 @@ The swimmer is wearing a belt with a bungee cord attached to a fisherman's scale
 The scale reading is used to plot a power graph while the swimmer is swimming with maximum effort
 against the rubber cord.
 There are two distinct software entities: 
-1. Arduino microcontroller scetch reading the strain cell in the scale.
+1. Arduino microcontroller sketch reading the strain cell in the scale.
 2. Python script on a laptop PC plotting the values as a bar graph.
 
 The testing sequence is as follows:
