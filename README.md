@@ -11,5 +11,5 @@ There are two distinct software entities:
 In this feature branch I will implement individual power levels for the plots by the Python script.
 The desktop file of swimmer data will be modified to a csv text file, where there is maximum power level for the swimmer after his/her name. 
 This way the plotting area y-axis will be optimized for each swimmer individually.<br> 
-No code editing by the user should be needed anymore.
-<br><img src="power_plot_1.png" width=600>
+No code editing by the user should be needed anymore.<br>
+<br><img src="power_plot_1.png" width=500>
