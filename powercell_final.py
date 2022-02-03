@@ -24,7 +24,7 @@ plot_color = "#ff5085"
 date_form = "%d.%m.%Y, %H:%M"
 swimmers = list()
 maxPower = list()
-start = False
+start = False	# If looping is implemented, this needs to be inside the loop
 finish = False
 
 #----- Functions
@@ -84,8 +84,8 @@ def maxRead():
      
 # Main
 ser = serial.Serial('COM3',baudrate = 38400, timeout=3) # Open serial port
-Finish = False   # Turns True when serial input string 'QQQ' is read
-
+finish = False   # Turns True when serial input string 'QQQ' is read
+start = false
 WinSmall = tk.Tk()
 WinSmall.title("Power swimmer select")
 WinSmall.geometry("300x500+150+150")
