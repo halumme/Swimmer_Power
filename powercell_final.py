@@ -26,6 +26,7 @@ styles = ["Free", "Breast", "Fly", "Back"]				# For button menu texts
 style = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
 plot_color = "#ff5085"
 date_form = "%d.%m.%Y, %H:%M"
+finish = False
 
 #----- Functions
 
@@ -55,8 +56,7 @@ def getRead():      # Read data from serial port
     try:
         netData = (float(aData) - zData) / factor  # as long as valid data is read
     except:
-        global Finish
-        Finish = True
+        finish = True
         netData = 0
     return netData
     
@@ -129,46 +129,49 @@ Butn1 = tk.Button(WinSmall,
                    font=(15),
                    command=starting)
 Butn1.pack()
-while (start == False):
-    WinSmall.update()
-	
-ser.reset_input_buffer()    #  After "Start" is pressed, purge all sh#t from serial buffer
-zeroData = getZero()        # Fetch a zero reading - NOTE: the power cell unit must be unloaded at this stage  
-header = Swimmer.get()+"_"
-header = header + style[v.get()] + "_" +datetime.now().strftime(date_form)
-plotw = tk.Tk()
-plotw.title("Forward power plot")
-plotw.geometry("850x500+460+150")
-screen = tk.Canvas(plotw, width=850, height=500, relief='sunken', bd=5, bg = "#fbfcff")
-screen.pack()
-screen.create_line(50, 0, 50, 475)       # Y axis
-screen.create_line(50, 475, 850, 475)    # X axis
-graduate(yScale)      # draw the y axis values and marks
-screen.create_text(200, 20, text=header, font=("Times", 15))
-zData = getZero()
-xCoor = 52
-reading = 0
-maxval = 0
-maxcoo = 0
-plotw.update()
+while True
+	finish = False
+	while (start == False):
+	    WinSmall.update()
+	try:
+		del plotw	  # The previous plot window can amd must be deleted here
+	ser.reset_input_buffer()    #  After "Start" is pressed, purge all sh#t from serial buffer
+	zeroData = getZero()        # Fetch a zero reading - NOTE: the power cell unit must be unloaded at this stage  
+	header = Swimmer.get()+"_"
+	header = header + style[v.get()] + "_" +datetime.now().strftime(date_form)
+	plotw = tk.Tk()
+	plotw.title("Forward power plot")
+	plotw.geometry("850x500+460+150")
+	screen = tk.Canvas(plotw, width=850, height=500, relief='sunken', bd=5, bg = "#fbfcff")
+	screen.pack()
+	screen.create_line(50, 0, 50, 475)       # Y axis
+	screen.create_line(50, 475, 850, 475)    # X axis
+	graduate(yScale)      # draw the y axis values and marks
+	screen.create_text(200, 20, text=header, font=("Times", 15))
+	zData = getZero()
+	xCoor = 52
+	reading = 0
+	maxval = 0
+	maxcoo = 0
+	plotw.update()
 
-while reading < 0.1:     # Plotting starts when input value exceeds 100 g
-    reading = getRead()
+	while reading < 0.1:     # Plotting starts when input value exceeds 100 g
+	    reading = getRead()
 
-while Finish == False:
-    luku = plot(xCoor)
-    if luku > maxval:	# keep track of the highest value and its x position
-        maxval=luku
-        maxcoo = xCoor
-    xCoor += 4
-    plotw.update()
+	while finish == False:
+	    luku = plot(xCoor)
+	    if luku > maxval:	# keep track of the highest value and its x position
+		maxval=luku
+		maxcoo = xCoor
+	    xCoor += 4
+	    plotw.update()
 					# Final step after receiving the QQQ string
-plotw.focus_force()	# activate the plotting window to enable screen capture
-keyb = Controller()
-maxRead()
-keyb.press(Key.alt)	# create a Print Active Window command (Alt+PrtSc = screen capture)
-keyb.press(Key.print_screen)
-keyb.release(Key.print_screen)
-keyb.release(Key.alt)
-start = False
-# WinSmall.mainloop()    # In future can repeat for another swimmer (not ready yet)
+	plotw.focus_force()	# activate the plotting window to enable screen capture
+	keyb = Controller()
+	maxRead()
+	keyb.press(Key.alt)	# create a Print Active Window command (Alt+PrtSc = screen capture)
+	keyb.press(Key.print_screen)
+	keyb.release(Key.print_screen)
+	keyb.release(Key.alt)
+	start = False
+	# WinSmall.mainloop()    # will not be needed
