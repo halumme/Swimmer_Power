@@ -1,12 +1,12 @@
 #
 #	This python script reads the output of powercell Arduino
-#	Timing is determined by the Arduino code
-#	Current scetch name is "kalavaaka_Tprod.ino"
-#	It plots the data as a bar graph as well as stores a screen capture of the plot
+#	Timing is determined by the Arduino code. Currently the output has about 3 points every second
+#	Current scetch name is "powecell_final.ino"
+#	Python script plots the data as a bar graph as well as stores a screen capture of the plot
 #	Arduino will send string QQQ to indicate that the stop button 
 #	has been pushed at the weight cell. After receipt of this string,
 #	the reading is terminated, maximum reading is printed out and the files closed. 
-#	Tested Nov 21 2019
+#	
 #
 
 import tkinter as tk
@@ -16,11 +16,7 @@ from PIL import Image, ImageTk
 from datetime import datetime
  
 #----- Environment variables 
-yScale = 11		# Plotting area maximum y value
-				# default value is 11 kilograms for small kids
-				# yScale is personal value and can be read from data file (Swimmers)
-				# Note that x axis scale is fixed to 200 points
-
+yDiv = 50	# Pixels per kilogram (default unit of force), used for the plot
 factor = 80930   # raw reading per kg. Calibrated on Nov 19 2019 (should be stored in file in the future)
 styles = ["Free", "Breast", "Fly", "Back"]				# For button menu texts
 style = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
@@ -29,15 +25,16 @@ date_form = "%d.%m.%Y, %H:%M"
 swimmers = list()
 maxPower = list()
 start = False
+finish = False
 
 #----- Functions
 
 def graduate(axis:  # Draws the y axis scale. 475 px equals the value of yScale
     a = 0
-    div = 475 / axis	# pixels per unit of force
+    yDiv = 475 / axis	# pixels per unit of force
     step_size = int(axis / 4)	# graduation step size here
     while (a < axis):
-        yCoor = 475 - a*div
+        yCoor = 475 - a*yDiv
         # draw scale value
         screen.create_text(25, yCoor, font=("arial",14), text=str(a))
         # draw the tick mark
@@ -57,14 +54,13 @@ def getRead():      # Read data from serial port
     try:
         netData = (float(aData) - zData) / factor  # as long as valid data is read
     except:
-        global Finish
-        Finish = True
+        finish = True
         netData = 0
     return netData
     
 def plot(xCoor):    # Draws a vertical line, height equal to the serial input value
     reading = getRead()
-    height = int(reading*scy_div +0.5) # scaling and rounding to the nearest pixel value
+    height = int(reading * yDiv +0.5) # scaling and rounding to the nearest pixel value
     screen.create_line(xCoor, 475-height, xCoor, 474, width=2, fill=plot_color)  #"#ff5085")
     return reading
 def ReadDisc():
@@ -163,7 +159,7 @@ plotw.update()
 while reading < 0.1:     # Plotting starts when input value exceeds 100 g
     reading = getRead()
 
-while Finish == False:
+while finish == False:
     luku = plot(xCoor)
     if luku > maxval:	# keep track of the highest value and its x position
         maxval=luku
