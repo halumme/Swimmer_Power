@@ -20,27 +20,29 @@ yScale = 11		# Plotting area maximum y value
 				# default value is 11 kilograms for small kids
 				# yScale is personal value and can be read from data file (Swimmers)
 				# Note that x axis scale is fixed to 200 points
-scy_div = 475 / yScale	# pixels per unit
+
 factor = 80930   # raw reading per kg. Calibrated on Nov 19 2019 (should be stored in file in the future)
 styles = ["Free", "Breast", "Fly", "Back"]				# For button menu texts
 style = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
 plot_color = "#ff5085"
 date_form = "%d.%m.%Y, %H:%M"
+swimmers = list()
+maxPower = list()
+start = False
 
 #----- Functions
 
-def ShowChoice():			# Is this useful at all??
-    event = styles[v.get()]
-
-def graduate(yScale):  # Draws the y axis scale. 475 px equals the value of yScale
+def graduate(axis:  # Draws the y axis scale. 475 px equals the value of yScale
     a = 0
-    while (a<yScale):
-        yCoor = 475 - a*scy_div
+    div = 475 / axis	# pixels per unit of force
+    step_size = int(axis / 4)	# graduation step size here
+    while (a < axis):
+        yCoor = 475 - a*div
         # draw scale value
         screen.create_text(25, yCoor, font=("arial",14), text=str(a))
         # draw the tick mark
         screen.create_line(45, yCoor, 50, yCoor)
-        a += 3	# graduation step size here
+        a += step_size	
 
 def getZero():      # Two zero readings are averaged
     ser.reset_input_buffer()
@@ -65,9 +67,15 @@ def plot(xCoor):    # Draws a vertical line, height equal to the serial input va
     height = int(reading*scy_div +0.5) # scaling and rounding to the nearest pixel value
     screen.create_line(xCoor, 475-height, xCoor, 474, width=2, fill=plot_color)  #"#ff5085")
     return reading
+def ReadDisc():
+    disc = open("C:\\Users\\user\\Desktop\\teamcsv.txt", "r") # Desktop file containing the names and power levels
+    for x in disc:
+   	n = x.partition(",")	# strip the comma separator
+        swimmers.append(n[0])
+        maxPower.append(n[2])
+    disc.close()
 
 def starting():
-    global start
     start = True
     
 def maxRead():
@@ -91,6 +99,7 @@ logo = tk.Label(WinSmall, image=render)
 logo.pack()
 event = ""
 swimmers = list()
+ReadDisc()
 disc = open("C:\\Users\\user\\Desktop\\team.txt", "r") # Desktop file containing the names of the team swimmers
 for x in disc:
    swimmers.append(x.strip())
@@ -116,7 +125,6 @@ for val, style in enumerate(styles):
                   width = 10,
                   bg="#db83bb",          
                   variable=v, 
-                  command=ShowChoice,
                   value=val).pack()
 start = False
 space = tk.Label(WinSmall, text=" ")
@@ -131,7 +139,7 @@ Butn1 = tk.Button(WinSmall,
 Butn1.pack()
 while (start == False):
     WinSmall.update()
-	
+yAxis = int(maxvoima[uimarit.index(Swimmer.get())])	# individual y-axis scale
 ser.reset_input_buffer()    #  After "Start" is pressed, purge all sh#t from serial buffer
 zeroData = getZero()        # Fetch a zero reading - NOTE: the power cell unit must be unloaded at this stage  
 header = Swimmer.get()+"_"
@@ -143,7 +151,7 @@ screen = tk.Canvas(plotw, width=850, height=500, relief='sunken', bd=5, bg = "#f
 screen.pack()
 screen.create_line(50, 0, 50, 475)       # Y axis
 screen.create_line(50, 475, 850, 475)    # X axis
-graduate(yScale)      # draw the y axis values and marks
+graduate(yAxis)      # draw the y axis values and marks
 screen.create_text(200, 20, text=header, font=("Times", 15))
 zData = getZero()
 xCoor = 52
