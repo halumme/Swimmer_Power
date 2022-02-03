@@ -1,4 +1,4 @@
-#Forward power measurement for swimming strokes
+## Forward power measurement for swimming strokes
 <p>It is a common work-out type to use rubber cord resistance swimming for creating explosive power. In this work-out the swimmer wears a belt 
 with either a bare rubber cord or a common bungee cord material.</p>
 <p>For safety reasons the commercial rubber cords have an internal safety string in the event of cord breakage. 
@@ -19,7 +19,7 @@ If you set the amplification to 32, the channel B is activated and the two other
 <p>A load cell has very small output voltage and although channel B has 4 times lower sensitivity, the temperature cell output needed to be damped considerably.</p>
 <p>I used a 1500 ohm NTC thermistor and a 47 kohm current limiting resistor in a measuring bridge. In the reference path I used fixed resistors 
 of corresponding values. Even then the temperature bridge ADC output was about 1000000 units per degC!</p>
-<center><img src="bridge.png"></center>
+<center><img src="HX711.png"></center>
 <p>Finally, the temperature dependence needed to be calibrated. I plotted channel A and B readings with time. The plot was very linear, and the correction factor
 was calculated and implemented in the measurement formula in the Arduino code. Therefore, the Arduino always delivers temperature compensated results.</p>
 <p>The testing process was refined at the pool, and it was clear that the current Python code needed some kind of stopping signal.
