@@ -1,7 +1,7 @@
 #
 #	This python script reads the output of powercell Arduino
 #	Timing is determined by the Arduino code. Currently the output has about 3 points every second
-#	Current scetch name is "powecell_final.ino"
+#	Current scetch name is "powercell_final.ino"
 #	Python script plots the data as a bar graph as well as stores a screen capture of the plot
 #	Arduino will send string QQQ to indicate that the stop button 
 #	has been pushed at the weight cell. After receipt of this string,
@@ -42,24 +42,24 @@ def graduate(axis:  # Draws the y axis scale. 475 px equals the value of yScale
         a += step_size	
 
 def getZero():      # Two zero readings are averaged
-    ser.reset_input_buffer()
-    z1 = ser.readline().decode('ascii')
-    z2 = ser.readline().decode('ascii')
-    z1 = float(z1)
-    z2 = float(z2)
+    z1 = float(ser.readline())
+    z2 = float(ser.readline())
     return (z1+ z2) / 2
 
 def getRead():      # Read data from serial port
-    aData = ser.readline().decode("ascii")
+    aData = zData
     try:
-        netData = (float(aData) - zData) / factor  # as long as valid data is read
+	aData = float(ser.readline())     
     except:
+	global finish
         finish = True
-        netData = 0
+    netData = (aData - zData) / factor  # as long as valid data is read	     
     return netData
     
 def plot(xCoor):    # Draws a vertical line, height equal to the serial input value
     reading = getRead()
+    if finish == True:
+        return
     height = int(reading * yDiv +0.5) # scaling and rounding to the nearest pixel value
     screen.create_line(xCoor, 475-height, xCoor, 474, width=2, fill=plot_color)  #"#ff5085")
     return reading
@@ -76,7 +76,7 @@ def starting():
     
 def maxRead():
     leng = int((maxval * scy_div) + 0.5)
-    ycoor = 475 - leng - 18		# 18 pixels above the plot peak
+    ycoor = 475 - leng - 16		# 16 pixels above the plot peak
     maxtime = int((maxcoo - 54) / 4 * 0.363) # Amend if graphics window is different
     screen.create_text(maxcoo+15, ycoor, font=("Arial",12), text=('%.2f' % maxval)+" kp @ "+str(maxtime)+" sec.")
     screen.create_line(maxcoo, ycoor+10, maxcoo, ycoor+15, width=2, fill="#000")
@@ -158,13 +158,13 @@ plotw.update()
 
 while reading < 0.1:     # Plotting starts when input value exceeds 100 g
     reading = getRead()
-
+luku = plot(xCoor)
 while finish == False:
-    luku = plot(xCoor)
     if luku > maxval:	# keep track of the highest value and its x position
         maxval=luku
         maxcoo = xCoor
     xCoor += 4
+    luku = plot(xCoor)
     plotw.update()
 					# Final step after receiving the QQQ string
 plotw.focus_force()	# activate the plotting window to enable screen capture
