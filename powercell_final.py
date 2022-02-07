@@ -16,10 +16,10 @@ from PIL import Image, ImageTk
 from datetime import datetime
  
 #----- Environment variables 
-yDiv = 50	# Pixels per kilogram (default unit of force), used for the plot
+yDiv = 45	# Pixels per kilogram (default unit of force), used for the plot
 factor = 80930   # raw reading per kg. Calibrated on Nov 19 2019 (should be stored in file in the future)
 styles = ["Free", "Breast", "Fly", "Back"]				# For button menu texts
-style = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
+stylex = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
 plot_color = "#ff5085"
 date_form = "%d.%m.%Y, %H:%M"
 swimmers = list()
@@ -29,7 +29,7 @@ finish = False
 
 #----- Functions
 
-def graduate(axis:  # Draws the y axis scale. 475 px equals the value of yScale
+def graduate(axis):  # Draws the y axis scale. 475 px equals the value of yScale
     a = 0
     yDiv = 475 / axis	# pixels per unit of force
     step_size = int(axis / 4)	# graduation step size here
@@ -49,9 +49,9 @@ def getZero():      # Two zero readings are averaged
 def getRead():      # Read data from serial port
     aData = zData
     try:
-	aData = float(ser.readline())     
+        aData = float(ser.readline())
     except:
-	global finish
+        global finish
         finish = True
     netData = (aData - zData) / factor  # as long as valid data is read	     
     return netData
@@ -66,16 +66,17 @@ def plot(xCoor):    # Draws a vertical line, height equal to the serial input va
 def ReadDisc():
     disc = open("C:\\Users\\user\\Desktop\\teamcsv.txt", "r") # Desktop file containing the names and power levels
     for x in disc:
-   	n = x.partition(",")	# strip the comma separator
+        n = x.partition(",")	# strip the comma
         swimmers.append(n[0])
         maxPower.append(n[2])
     disc.close()
 
 def starting():
+    global start
     start = True
     
 def maxRead():
-    leng = int((maxval * scy_div) + 0.5)
+    leng = int((maxval * yDiv) + 0.5)
     ycoor = 475 - leng - 16		# 16 pixels above the plot peak
     maxtime = int((maxcoo - 54) / 4 * 0.363) # Amend if graphics window is different
     screen.create_text(maxcoo+15, ycoor, font=("Arial",12), text=('%.2f' % maxval)+" kp @ "+str(maxtime)+" sec.")
@@ -85,7 +86,7 @@ def maxRead():
 # Main
 ser = serial.Serial('COM3',baudrate = 38400, timeout=3) # Open serial port
 finish = False   # Turns True when serial input string 'QQQ' is read
-start = false
+start = False
 WinSmall = tk.Tk()
 WinSmall.title("Power swimmer select")
 WinSmall.geometry("300x500+150+150")
@@ -96,10 +97,6 @@ logo.pack()
 event = ""
 swimmers = list()
 ReadDisc()
-disc = open("C:\\Users\\user\\Desktop\\team.txt", "r") # Desktop file containing the names of the team swimmers
-for x in disc:
-   swimmers.append(x.strip())
-disc.close()
 
 # Create a Tkinter variable
 Swimmer = tk.StringVar()
@@ -135,11 +132,12 @@ Butn1 = tk.Button(WinSmall,
 Butn1.pack()
 while (start == False):
     WinSmall.update()
-yAxis = int(maxvoima[uimarit.index(Swimmer.get())])	# individual y-axis scale
+yAxis = int(maxPower[swimmers.index(Swimmer.get())])	# individual y-axis scale
+yDiv = int(450 / yAxis)
 ser.reset_input_buffer()    #  After "Start" is pressed, purge all sh#t from serial buffer
 zeroData = getZero()        # Fetch a zero reading - NOTE: the power cell unit must be unloaded at this stage  
 header = Swimmer.get()+"_"
-header = header + style[v.get()] + "_" +datetime.now().strftime(date_form)
+header = header + stylex[v.get()] + "_" +datetime.now().strftime(date_form)
 plotw = tk.Tk()
 plotw.title("Forward power plot")
 plotw.geometry("850x500+460+150")
@@ -175,4 +173,4 @@ keyb.press(Key.print_screen)
 keyb.release(Key.print_screen)
 keyb.release(Key.alt)
 start = False
-# WinSmall.mainloop()    # In future can repeat for another swimmer (not ready yet)
+# WinSmall.mainloop()  # 
