@@ -8,7 +8,7 @@
 #	the reading is terminated, maximum reading is printed out and the files closed. 
 #	Tested Nov 21 2019
 #
-
+# Looping-over testing
 import tkinter as tk
 import serial
 from pynput.keyboard import Key, Controller
@@ -23,15 +23,12 @@ yScale = 11		# Plotting area maximum y value
 scy_div = 475 / yScale	# pixels per unit
 factor = 80930   # raw reading per kg. Calibrated on Nov 19 2019 (should be stored in file in the future)
 styles = ["Free", "Breast", "Fly", "Back"]				# For button menu texts
-style = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
+stylex = ["freestyle", "breaststroke", "butterfly", "backstroke"]	# for header text
 plot_color = "#ff5085"
 date_form = "%d.%m.%Y, %H:%M"
 finish = False
 
 #----- Functions
-
-def ShowChoice():			# Is this useful at all??
-    event = styles[v.get()]
 
 def graduate(yScale):  # Draws the y axis scale. 475 px equals the value of yScale
     a = 0
@@ -51,9 +48,9 @@ def getZero():      # Two zero readings are averaged
 def getRead():      # Read data from serial port
     aData = zData
     try:
-	aData = float(ser.readline())
+        aData = float(ser.readline())
     except:
-	global finish
+        global finish
         finish = True
     netData = (aData - zData) / factor  # as long as valid data is read
     return netData
@@ -78,7 +75,7 @@ def maxRead():
      
 # Main
 ser = serial.Serial('COM3',baudrate = 38400, timeout=3) # Open serial port
-Finish = False   # Turns True when serial input string 'QQQ' is read
+Finish = False   # Turns True when serial input string is non-numeric
 
 WinSmall = tk.Tk()
 WinSmall.title("Power swimmer select")
@@ -114,7 +111,6 @@ for val, style in enumerate(styles):
                   width = 10,
                   bg="#db83bb",          
                   variable=v, 
-                  command=ShowChoice,
                   value=val).pack()
 start = False
 space = tk.Label(WinSmall, text=" ")
@@ -127,16 +123,18 @@ Butn1 = tk.Button(WinSmall,
                    font=(15),
                    command=starting)
 Butn1.pack()
-while True
+while True:
 	finish = False
 	while (start == False):
-	    WinSmall.update()
+		WinSmall.update()
 	try:
-		del plotw	  # The previous plot window can amd must be deleted here
-	ser.reset_input_buffer()    #  After "Start" is pressed, purge all sh#t from serial buffer
+		plotw.destroy()
+	except:
+		print("Swimmer change not possible")
+	ser.reset_input_buffer()
 	zeroData = getZero()        # Fetch a zero reading - NOTE: the power cell unit must be unloaded at this stage  
 	header = Swimmer.get()+"_"
-	header = header + style[v.get()] + "_" +datetime.now().strftime(date_form)
+	header = header + stylex[v.get()] + "_" +datetime.now().strftime(date_form)
 	plotw = tk.Tk()
 	plotw.title("Forward power plot")
 	plotw.geometry("850x500+460+150")
@@ -157,13 +155,13 @@ while True
 	    reading = getRead()
 	luku = plot(xCoor)
 	while finish == False:
-	    if luku > maxval:	# keep track of the highest value and its x position
-		maxval=luku
-		maxcoo = xCoor
-	    xCoor += 4
-	    luku = plot(xCoor)
-	    plotw.update()
-					# Final step after receiving the QQQ string
+		if luku > maxval:	# keep track of the highest value and its x position
+			maxval=luku
+			maxcoo = xCoor
+		xCoor += 4
+		luku = plot(xCoor)
+		plotw.update()
+					# Final step after receiving the EOD string
 	plotw.focus_force()	# activate the plotting window to enable screen capture
 	keyb = Controller()
 	maxRead()
@@ -173,3 +171,4 @@ while True
 	keyb.release(Key.alt)
 	start = False
 	# WinSmall.mainloop()    # will not be needed
+
